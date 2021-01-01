@@ -8,7 +8,7 @@ def home():
     '''
     home page
     '''
-
+    
     device_list = device_database.GetDeviceIdentifiers()
     print(device_list, flush=True)
 
