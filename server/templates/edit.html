@@ -1,4 +1,161 @@
 {% extends "main.html" %}
 {% block content %}
- <h1>Editing Device: {{ device.identifier }} </h1>
+ <p>Editing Device: {{ device.identifier }} </p>
+ <div class="row gx-5">
+
+    <!-- main edit device column -->
+     <div class="col p-3 border bg-light">
+        <form action = "{{ url_for('edit_device') }}", method="post" novalidate>
+
+            <!-- device name -->
+            <div class="mb-3">
+                <label for="deviceName" class="form-label">Device Name</label>
+                <input name="deviceName" id="deviceName" class="form-control" aria-describedby="nameHelp">
+                <div id="nameHelp" class="form-text text-muted">unique device name - no spaces or special characters</div>
+            </div>
+            <!-- device network address -->
+            <div class="mb-3">
+                <label for="networkAddress" class="form-label">Address</label>
+                <input name="networkAddress" id="networkAddress" class="form-control" aria-describedby="addressHelp">
+                <div id="addressHelp" class="form-text text-muted">network address eg. 192.168.1.1 or 10.0.0.160:4000</div>
+            </div>
+            <!-- device mac address -->
+            <div class="mb-3">
+                <label for="macAddress" class="form-label">MAC Address</label>
+                <input name="macAddress" id="macAddress" class="form-control" aria-describedby="macAddressHelp">
+                <div id="macAddressHelp" class="form-text text-muted">device MAC address eg. F0-6E-0B-D7-2C-F1</div>
+            </div>
+            <!-- device description -->
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <input name="description" id="description" class="form-control" aria-describedby="descriptionHelp">
+                <div id="descriptionHelp" class="form-text text-muted">device or input/output descriptions</div>
+            </div>
+
+            <!-- inputs -->
+            <div class="container gy-5">
+                <label>Inputs</label>
+                <div class="row gy-5">
+                    <div class="col col-md-auto">
+                        <button class="btn btn-primary" type="button" id="addInputButton" value="Submit" onclick="appendInput()">+</button>
+                    </div>
+
+                    <div class="col" id="inputParent">
+                        <div class="input-group mb-3" id="inputForm">
+                            <input id="inputName" name="inputName" class="form-control">
+                            <select class="form-select col-sm" id="inputType" name="inputType">
+                                <option value="0" selected>input type...</option>
+                                <option value="1">Float</option>
+                                <option value="2">Int</option>
+                                <option value="3">Boolean</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- outputs -->
+            <div class="container gy-5">
+                <label>Outputs</label>
+                <div class="row gy-5">
+                    <div class="col col-md-auto">
+                        <button class="btn btn-primary" type="button" id="addOutputButton" onclick="appendOutput()">+</button>
+                    </div>
+                    <div class="col" id="outputParent">
+                        <div class="input-group mb-3" id="outputForm">
+                            <input id="outputName" name="outputName" class="form-control">
+                            <select class="form-select col-sm" id="outputType" name="outputType">
+                                <option value="0" selected>input type...</option>
+                                <option value="1">Float</option>
+                                <option value="2">Int</option>
+                                <option value="3">Boolean</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="postDeviceButton" type="submit" class="btn btn-primary mb-3">Submit</button>
+
+            <!-- create new input or output form slots -->
+            <script>
+                window.addEventListener("load", function(){
+                    // populate fields from jinja device value
+                    var name_field = document.getElementById("deviceName");
+                    name_field.value = "{{ device.identifier }}";
+
+                    var address_field = document.getElementById("networkAddress");
+                    address_field.value = "{{ device.network_address }}";
+
+                    var mac_address_field = document.getElementById("macAddress");
+                    mac_address_field.value = "{{ device.mac_address }}";
+
+                    var description_field = document.getElementById("description");
+                    description_field.value = "{{ device.description }}";
+
+                    // create the existing number of input/outputs
+                    var input_form = null;
+                    {% for in_value in device.inputs %}
+                        
+                        // alert("{{device.inputs}}");
+                        if (input_form == null)
+                        {
+                            // just retrieve existing element
+                            input_form = document.getElementById("inputForm");
+                        }
+
+                        else
+                        {
+                            // clone additional element
+                            input_form = appendInput();
+                        }
+                        
+                        input_form.childNodes[1].value = "{{in_value.name}}";
+                        input_form.childNodes[3].value = "{{in_value.io_type}}";
+                        
+                    {% endfor %}
+
+                    var output_form = null;
+                    {% for out_value in device.outputs %}
+                        
+                        // alert("{{device.outputs}}");
+                        if (output_form == null)
+                        {
+                            // just retrieve existing element
+                            output_form = document.getElementById("outputForm");
+                        }
+
+                        else
+                        {
+                            // clone additional element
+                            output_form = appendOutput();
+                        }
+                        
+                        output_form.childNodes[1].value = "{{out_value.name}}";
+                        output_form.childNodes[3].value = "{{out_value.io_type}}";
+                        
+                    {% endfor %}
+
+                    // alert("done input/outputs")
+                });
+    
+                function appendInput(){
+                    var input_one = document.getElementById("inputForm");
+                    var input_new = input_one.cloneNode(true);
+                    input_one.parentNode.appendChild(input_new);
+
+                    return input_new;
+                }
+
+                function appendOutput(){
+                    var output_one = document.getElementById("outputForm");
+                    var output_new = output_one.cloneNode(true);
+                    output_one.parentNode.appendChild(output_new);
+
+                    return output_new;
+                }
+            </script>
+        </form>
+     </div>
+ </div>
 {% endblock %}

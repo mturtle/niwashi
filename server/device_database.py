@@ -1,8 +1,11 @@
 import shelve
-import server.home_devices
+from server.home_devices import HomeDeviceController
 from server import db_path
 
 def GetDevice(device_identifier):
+
+    if device_identifier == None or device_identifier == '':
+        return None
 
     db = shelve.open(db_path)
     device = db[device_identifier]
@@ -13,7 +16,7 @@ def GetDevice(device_identifier):
 
 def SubmitDevice(device):
 
-    if type(device) is 'HomeDeviceController':
+    if isinstance(device, HomeDeviceController):
         
         db = None
 
@@ -21,15 +24,17 @@ def SubmitDevice(device):
             db = shelve.open(db_path)
             db[device.identifier] = device
             db.close()
-
-            print(f"{device} successfully written to database")
+            return True
 
         except:
             print(f"failed writing {device} to database")
+            return False
 
         finally:
             if db != None:
                 db.close()
+
+        return False
 
 
 def GetDeviceIdentifiers():
@@ -44,9 +49,26 @@ def GetDeviceIdentifiers():
         db.close()
 
     except:
-        print("failed opening database")
+        print("failed reading from database", flush=True)
 
     return identifiers
+
+
+def GetDevices():
+    '''
+    return a copy of all device objects
+    '''
+    devices = []
+
+    try:
+        db = shelve.open(db_path)
+        devices = list(db.values())
+        db.close()
+
+    except:
+        print("failed reading from database", flush=True)
+
+    return devices
 
     
 
